@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "com.volcanium.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "mixins": [],
+  "client": [
+    "MixinWorldRenderer",
+    "MixinEntityRenderDispatcher",
+    "MixinBlockEntityRenderDispatcher",
+    "MixinParticle"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
+
