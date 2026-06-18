@@ -4,6 +4,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import org.joml.Matrix4f;
 import org.joml.FrustumIntersection;
 
@@ -19,35 +20,32 @@ public class VolcaniumEngine {
 
     public boolean shouldRender(Entity entity) {
         if (entity == null) return true;
-        // Check if the entity's hitbox intersects with the phone screen's view field
+        
+        // Fixed: Use getBoundingBox() instead of getVisibilityBoundingBox()
+        Box box = entity.getBoundingBox();
+        if (box == null) return true;
+
         return frustum.testAab(
-            (float) entity.getVisibilityBoundingBox().minX,
-            (float) entity.getVisibilityBoundingBox().minY,
-            (float) entity.getVisibilityBoundingBox().minZ,
-            (float) entity.getVisibilityBoundingBox().maxX,
-            (float) entity.getVisibilityBoundingBox().maxY,
-            (float) entity.getVisibilityBoundingBox().maxZ
+            (float) box.minX,
+            (float) box.minY,
+            (float) box.minZ,
+            (float) box.maxX,
+            (float) box.maxY,
+            (float) box.maxZ
         );
     }
 
     public boolean shouldRender(BlockEntity blockEntity) {
         if (blockEntity == null) return true;
         BlockPos pos = blockEntity.getPos();
-        // Check if the 1x1x1 block tile entity boundaries are inside the screen field
-        return frustum.testAab(
-            pos.getX(), pos.getY(), pos.getZ(), 
-            pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1
-        );
+        if (pos == null) return true;
+        
+        return frustum.testPoint((float) pos.getX(), (float) pos.getY(), (float) pos.getZ());
     }
 
-    public boolean shouldRender(Particle particle) {
-        if (particle == null) return true;
-        // Fast single-point check for individual particle effects to reduce micro-stutters
-        return frustum.testPoint(
-            (float) particle.getBoundingBox().minX,
-            (float) particle.getBoundingBox().minY,
-            (float) particle.getBoundingBox().minZ
-        );
+    public boolean shouldRender(Particle particle, BlockPos pos) {
+        if (particle == null || pos == null) return true;
+        
+        return frustum.testPoint((float) pos.getX(), (float) pos.getY(), (float) pos.getZ());
     }
 }
-
